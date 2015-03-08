@@ -8,11 +8,13 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <iostream>
 #include <vector>
 #include <malloc/malloc.h>
 #define LEN sizeof(struct PatriciaTrieNode)
 #define LENint sizeof(int)
+#define SIZE sizeof(char)
 #define LINE 1024
 char *ReadData(FILE *fp, char *buf)
 {
@@ -25,10 +27,12 @@ struct PatriciaTrieNode {
     int node_flag;
     int childnodenum;
     PatriciaTrieNode** childNodes;
-    int bitmap[256];
+    char bitmap[255/(8*SIZE)+1];
     int* childNodeListp;
     vector<int> childNodeList;
 };
+
+
 //global variable
 int nodeNo=0;
 
@@ -123,6 +127,106 @@ int bitmap_get(int index,char* bitmap)  //return 1 means the value in the positi
 
 
 
+//unsigned char *g_bitmap = NULL;
+//int g_size = 0;
+//int g_base = 0;
+
+
+char* bitmap_init(char* g_bitmap)
+{
+    g_bitmap = (char *)malloc((255/(8*SIZE)+1)*sizeof(char));
+    if(g_bitmap == NULL)
+        return 0;
+    int g_size = 255/(8*SIZE)+1;
+    memset(g_bitmap, 0x0, g_size);
+    return g_bitmap;
+}
+
+
+struct PatriciaTrieNode* initPatriciaNode(int flag)
+{
+    //    struct PatriciaTrieNode* a=new PatriciaTrieNode;
+    struct PatriciaTrieNode* a=(struct PatriciaTrieNode *)malloc(sizeof(struct PatriciaTrieNode));
+    a->key=(char* )"";
+    //a->No=nodeNo++;
+    a->childNodes=(struct PatriciaTrieNode**)malloc(LEN);
+    a->node_flag=flag;
+    //    a->childNodeListp=(int*)malloc(LENint);
+    a->childnodenum=0;
+    bitmap_init(a->bitmap);
+    return a;
+}
+
+int PatriciaTrieNode_free(struct PatriciaTrieNode* node)  ////这个函数不知道需不需要，不会释放二重指针
+{
+    free(node->bitmap);
+    return 0;
+}
+
+
+//the operations on the bitmap
+
+int bitmap_setTo1(int index, char* bitmap)  //change the value on the position index from 0 to 1
+{
+    int subscript=index/SIZE*8 ;
+    int remainder = index%(SIZE*8);
+    unsigned char x = (0x1<<remainder);
+    if( subscript >255/(8*SIZE))
+        return 0;
+    bitmap[subscript] |= x;
+    return 1;
+}
+
+int bitmap_setTo0(int index, char* bitmap)  //change the value on the position index from 1 to 0
+{
+    int subscript=index/SIZE*8 ;
+    int remainder = index%(SIZE*8);
+    unsigned char x = (0x1<<remainder);
+    if( subscript >255/(8*SIZE))
+        return 0;
+    bitmap[subscript] ^= x;
+    return 1;
+}
+
+
+int bitmap_get(int index,char* bitmap)  //return 1 means the value in the position index is 1,return 0......is 0,return -1 means the index is out of the range
+{
+    int subscript = index/(SIZE*8) ;
+    int remainder = (index)%(SIZE*8);
+    unsigned char x = (0x1<<remainder);
+    unsigned char res;
+    if( subscript > 255/(8*SIZE))
+        return -1;
+    res=bitmap[subscript] & x;
+    return res > 0 ? 1 : 0;
+}
+
+
+
+////////////////
+
+//int bitmap_data(int index)
+//{
+//    return (index + g_base);
+//}
+
+//int bitmap_free(char* bitmap)
+//{
+//    free(bitmap);
+//    return 0;
+//}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //字符串相关处理
@@ -175,6 +279,10 @@ char* longestprefix(char* str1,char* str2)
     buffer=strcutmid(str1, 0, i);
     return buffer;
 }
+
+
+
+
 
 PatriciaTrieNode** findFinalNode(PatriciaTrieNode** childNodes)
 {
@@ -408,22 +516,22 @@ void insertstring(PatriciaTrieNode* startnode,int start_pos,char* string)
 
 int main()
 {
-    PatriciaTrieNode *root=initialPatriciaNode(1);
-    FILE *fp;
-    char *buf, *p;
-    if ((fp=fopen("/Users/zhaowenichi/Downloads/toStudent/text1.txt", "r"))==NULL) {
-        printf("open file error!!\n");
-        return 0;
-    }
-    
-    buf=(char*)malloc(LINE*sizeof(char));
-    
-    while(1) {
-        p=ReadData(fp, buf);
-        if(!p)
-        break;
-        insertstring(root, 0,buf);
-    }
+//    PatriciaTrieNode *root=initialPatriciaNode(1);
+//    FILE *fp;
+//    char *buf, *p;
+//    if ((fp=fopen("/Users/zhaowenichi/Downloads/toStudent/text1.txt", "r"))==NULL) {
+//        printf("open file error!!\n");
+//        return 0;
+//    }
+//    
+//    buf=(char*)malloc(LINE*sizeof(char));
+//    
+//    while(1) {
+//        p=ReadData(fp, buf);
+//        if(!p)
+//        break;
+//        insertstring(root, 0,buf);
+//    }
 //    vector<PatriciaTrieNode*> nodelist;
 //    nodelist.push_back(root);
 //    nodelist.push_back(initialPatriciaNode(3));
@@ -469,8 +577,8 @@ int main()
 //    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/Alain/Alain.html");
 //    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/bergson_henri/bergson_henri.html");
 
-    printPatricianode(root);
-    
+    //printPatricianode(root);
+    cout<<LEN;
 
     return 0;
 }
