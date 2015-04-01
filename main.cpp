@@ -1,507 +1,589 @@
-////这是一个实验ß
-////
-////  main.cpp
-////  C++ Project
-////
-////  Created by 赵闻一 on 1/9/15.
-////  Copyright (c) 2015 David Zhao Studio. All rights reserved.
-////
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <iostream>
-#include <vector>
 #include <malloc/malloc.h>
-#define LEN sizeof(struct PatriciaTrieNode)
-#define LENint sizeof(int)
-#define SIZE sizeof(char)
-#define LINE 1024
-//char *ReadData(FILE *fp, char *buf)
-//{
-//    return fgets(buf, LINE, fp);
-//}
-using namespace std;
-//struct PatriciaTrieNode {
-//    char* key;
-//    int No;
-//    int node_flag;
-//    int childnodenum;
-//    int childNodeListSize;
-//    PatriciaTrieNode** childNodes;
-//    char bitmap[255/(8*SIZE)+1];
-//    int* childNodeListp;
-//    vector<int> childNodeList;
-//};
-//
-//
-////global variable
-//int nodeNo=0;
-//
-////unsigned char *g_bitmap = NULL;
-////int g_size = 0;
-////int g_base = 0;
-//
-//
-//char* bitmap_init(char* g_bitmap)
-//{
-//    g_bitmap = (char *)malloc((255/(8*SIZE)+1)*sizeof(char));
-//    if(g_bitmap == NULL)
-//        return 0;
-//    int g_size = 255/(8*SIZE)+1;
-//    memset(g_bitmap, 0x0, g_size);
-//    return g_bitmap;
-//}
-//
-//
-//struct PatriciaTrieNode* initPatriciaNode(int flag)
-//{
-//    //    struct PatriciaTrieNode* a=new PatriciaTrieNode;
-//    struct PatriciaTrieNode* a=(struct PatriciaTrieNode *)malloc(sizeof(struct PatriciaTrieNode));
-//    a->key=(char* )"";
-//    //a->No=nodeNo++;
-//    a->childNodes=(struct PatriciaTrieNode**)malloc(LEN);
-//    a->node_flag=flag;
-//    //    a->childNodeListp=(int*)malloc(LENint);
-//    a->childnodenum=0;
-//    bitmap_init(a->bitmap);
-//    return a;
-//}
-//
-//int PatriciaTrieNode_free(struct PatriciaTrieNode* node)  ////这个函数不知道需不需要，不会释放二重指针
-//{
-//    free(node->bitmap);
-//    return 0;
-//}
-//
-//
-////the operations on the bitmap
-//
-//int bitmap_get(int index,char* bitmap)  //return 1 means the value in the position index is 1,return 0......is 0,return -1 means the index is out of the range
-//{
-//    int subscript = index/(SIZE*8) ;
-//    int remainder = (index)%(SIZE*8);
-//    unsigned char x = (0x1<<remainder);
-//    unsigned char res;
-//    if( subscript > 255/(8*SIZE))
-//        return -1;
-//    res=bitmap[subscript] & x;
-//    return res > 0 ? 1 : 0;
-//}
-//
-//int bitmap_setTo1(int index, char* bitmap)  //change the value on the position index from 0 to 1
-//{
-//    int subscript=index/(SIZE*8) ;
-//    int remainder = index%(SIZE*8);
-//    unsigned char x = (0x1<<remainder);
-//    if( subscript >255/(8*SIZE))
-//        return 0;
-//    bitmap[subscript] |= x;
-//    return 1;
-//}
-//
-//int bitmap_setTo0(int index, char* bitmap)  //change the value on the position index from 1 to 0
-//{
-//    int subscript=index/(SIZE*8) ;
-//    int remainder = index%(SIZE*8);
-//    unsigned char x = (0x1<<remainder);
-//    if( subscript >255/(8*SIZE))
-//        return 0;
-//    bitmap[subscript] ^= x;
-//    return 1;
-//}
-//
-//int bitmap_count1(int index, char* bitmap)
-//{
-//    int sum=0,i=0;
-//    while (i<index) {
-//        sum+=bitmap_get(i, bitmap);
-//        i++;
-//    }
-//    return sum;
-//}
-//
-////int bitmap_data(int index)
-////{
-////    return (index + g_base);
-////}
-//
-//int bitmap_free(char* bitmap)
-//{
-//    free(bitmap);
-//    return 0;
-//}
-//
-//
-//
-//int insertNodeToNode(PatriciaTrieNode node,PatriciaTrieNode* nodeToInsert,int index)
-//{
-//    if(node.childnodenum+1>node.childNodeListSize)
-//        node.childNodes=(PatriciaTrieNode**)realloc(node.childNodes, node.childNodeListSize + 1);
-//    int i=0;
-//    for(i = node.childnodenum; i >  index; )
-//    {
-//        node.childNodes[i] = node.childNodes[i - 1];
-//        i--;
-//    }
-//    node.childNodes[index] = nodeToInsert;
-//    node.childnodenum++;
-//    return 1;
-//}
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-////字符串相关处理
-////cut a string inside the string
-//char * strcutmid(char *src, int startpos  ,int endpos)
-//{
-//    int n=endpos-startpos;
-//    int m=startpos;
-//    int len = (int)strlen(src);
-//    char* dst=(char*)malloc(n+1);
-//    if (dst==NULL) {
-//        printf("malloc error!");
-//        return NULL;
-//    }
-//    char *p = src;
-//    char *q = dst;
-//    if(n>len)
-//        n = len-m;
-//    if(m<0)
-//        m=0;
-//    if(m>len)
-//        return NULL;
-//    p += m;
-//    while(n--)
-//        *(q++) = *(p++);
-//    *(q++)='\0';
-//    return dst;
-//}
-////cut a string after one pos
-//char* strcutright(char* src,int startpos)
-//{
-//    return strcutmid(src, startpos, (int)strlen(src));
-//}
-//char *strcopy(char *src)
-//{
-//    char* dst;
-//    dst=strcutright(src, 0);
-//    return dst;
-//}
-////longest prefix of 2 string
-//char* longestprefix(char* str1,char* str2)
-//{
-//    char* p=str1;
-//    char* q=str2;
-//    char* buffer;
-//    int i=0;
-//    while (*p++==*q++) {
-//        i++;
-//    }
-//    buffer=strcutmid(str1, 0, i);
-//    return buffer;
-//}
-//
-//
-//
-//
-//
-//PatriciaTrieNode** findFinalNode(PatriciaTrieNode** childNodes)
-//{
-//    PatriciaTrieNode** b=childNodes;
-//    while (*b!=NULL) {
-//        b++;
-//    }
-//    return b;
-//}
-//
-//
-//
-//int** findFinalNodeNum(int** childNodes)
-//{
-//    int** b=childNodes;
-//    while (*b!=NULL) {
-//        b++;
-//    }
-//    return b;
-//}
-//int** findFirstNodeNum(int** childNodes)
-//{
-//    int** b=childNodes;
-//    while (*b==NULL) {
-//        b++;
-//    }
-//    return b;
-//}
-//void addChildNode(int No,PatriciaTrieNode* node)
-//{
-////    int *dynamic;
-////    int *ptr;
-////    ptr=(int*)realloc(dynamic, (node->childnodenum+1)*LENint);
-////    if (ptr!=NULL) {
-////        dynamic=ptr;
-////    }
-////    else{
-////        perror("Error:");
-////        exit(EXIT_FAILURE);
-////    }
-////    dynamic[node->childnodenum++]=No;
-////    
-////    
-////    
-////    
-////    
-//    
-//    
-//    
-//    
-//    
-//    
-//    
-//    
-//    
-//    node->childNodeList.push_back(No);
-//    node->childnodenum=(int)node->childNodeList.size();
-//}
-//
-//
-//void printChildList(PatriciaTrieNode* node,FILE* fp)
-//{
-//    int a=node->childnodenum;
-//    for(int i=0;i<a;i++) {
-//        printf("%d ",node->childNodeList[i]);
-//        fprintf(fp, "%d ",node->childNodeList[i]);
-//    }
-//    printf("\n");
-//    fprintf(fp, "\n");
-//}
-//void printPatricianode(PatriciaTrieNode* a)
-//{
-//    FILE* fp=fopen("/Users/zhaowenichi/Downloads/text.txt","a");
-//    if (a->key!=0) {
-//        printf("Node No.:%d\n",a->No);
-//        fprintf(fp, "Node No.:%d\n",a->No);
-//        printf("Key is:%s\n",a->key);
-//        fprintf(fp, "Key is:%s\n",a->key);
-//        printf("%d child node(s):",a->childnodenum);
-//        fprintf(fp, "%d child node(s):",a->childnodenum);
-//        printChildList(a,fp);
-//        if (a->node_flag==1)
-//        {
-//            printf("Kind: Root Node\n");
-//            fprintf(fp, "Kind: Root Node\n");
-//        }
-//        else if (a->node_flag==2){
-//            printf("Kind: Inner Node\n");
-//            fprintf(fp,"Kind: Inner Node\n");
-//        }
-//        else if(a->node_flag==3){
-//            printf("Kind: Leaf Node\n");
-//            fprintf(fp, "Kind: Leaf Node\n");
-//        }
-//        else{
-//            printf("Node out of tree\n");
-//            fprintf(fp, "Node out of tree\n");
-//        }
-//        int i=0;
-//        printf("\n\n");
-//        fprintf(fp, "\n\n");
-//        fclose(fp);
-//        while (*(a->childNodes+i)!=NULL) {
-//            printPatricianode(*(a->childNodes+i));
-//            //a->childNodes++;
-//            i++;
-//        }
-//    }
-//}
-//PatriciaTrieNode* initialPatriciaNode(int flag)
-//{
-//    PatriciaTrieNode* a=new PatriciaTrieNode;
-//    a->key=(char* )"";
-//    a->No=nodeNo++;
-//    a->childNodes=(PatriciaTrieNode**)malloc(LEN);
-//    a->node_flag=flag;
-////    a->childNodeListp=(int*)malloc(LENint);
-//    a->childnodenum=0;
-//    return a;
-//}
-//
-//void insertstring(PatriciaTrieNode* startnode,int start_pos,char* string)
-//{
-//    if (start_pos >= strlen(string))
-//        return;
-//    int i=0;
-//    while(*(startnode->childNodes+i)){
-//        PatriciaTrieNode* currnode=*(startnode->childNodes+i);
-//        char* str_node=strcopy(currnode->key);
-//        char* str_pattern=strcutmid(string, start_pos, (int)strlen(string));
-//        char* substr=longestprefix(str_node, str_pattern);
-//        if(str_node==NULL||strcmp(str_node,"")==0)
-//        {
-//            i++;
-//            continue;
-//        }
-//        if(substr==NULL||strcmp(substr,"")==0)
-//        {
-//            i++;
-//            continue;
-//        }
-//        else if(strcmp(substr, str_pattern)==0&&strcmp(substr, str_node)==0)
-//            return;
-//        else if(strcmp(substr, str_pattern)==0)
-//        {
-//            currnode->node_flag=2;
-//            currnode->key=strcopy(str_pattern);
-//            PatriciaTrieNode* newnode1=initialPatriciaNode(2);
-//            PatriciaTrieNode* newnode2=initialPatriciaNode(3);
-//            newnode1->key=strcutright(str_node, (int)strlen(str_pattern));
-//            newnode1->childNodes=currnode->childNodes;
-//            newnode1->childnodenum=currnode->childnodenum;
-//            newnode1->childNodeList=currnode->childNodeList;
-//            currnode->childNodeList.clear();
-//            currnode->childNodes=(PatriciaTrieNode**)malloc(LEN);
-//            currnode->childnodenum=0;
-//            PatriciaTrieNode** newnodes=findFinalNode(currnode->childNodes);
-//            *newnodes=newnode2;
-//            *(newnodes+1)=newnode1;
-//            addChildNode(newnode1->No, currnode);
-//            addChildNode(newnode2->No, currnode);
-//            return;
-//        }
-//        else if(strcmp(substr, str_node)==0)
-//        {
-//            int new_start_pos = start_pos + (int)strlen(substr);
-//            if(currnode->node_flag==2)
-//                insertstring(currnode,new_start_pos,string);
-//            else
-//            {
-//                currnode->node_flag=2;
-//                currnode->key=strcopy(substr);
-//                PatriciaTrieNode** newnodes=findFinalNode(currnode->childNodes);
-//                *newnodes=initialPatriciaNode(3);
-//                *(newnodes+1)=initialPatriciaNode(3);
-//                PatriciaTrieNode* newnode1=*(newnodes);
-//                PatriciaTrieNode* newnode2=*(newnodes+1);
-//                newnode2->key=strcutright(str_pattern, (int)strlen(substr));
-//                addChildNode(newnode1->No, currnode);
-//                addChildNode(newnode2->No, currnode);
-//            }
-//            return;
-//        }
-//        else
-//        {
-//            currnode->node_flag=2;
-//            int biaoji=0;
-//            if(currnode->childnodenum==0)
-//            {biaoji=3;}
-//            else
-//            {biaoji=2;}
-//            
-//            PatriciaTrieNode* newnode1=initialPatriciaNode(biaoji);
-//            PatriciaTrieNode* newnode2=initialPatriciaNode(3);
-//            newnode1->key=strcutright(str_node, (int)strlen(substr));
-//            newnode1->childNodes=currnode->childNodes;
-//            newnode1->childnodenum=currnode->childnodenum;
-//            newnode1->childNodeList=currnode->childNodeList;
-//            newnode2->key=strcutright(str_pattern, (int)strlen(substr));
-//            currnode->childNodeList.clear();
-//            currnode->childNodes=(PatriciaTrieNode**)malloc(LEN);
-//            currnode->childnodenum=0;
-//            currnode->key=strcopy(substr);
-//            PatriciaTrieNode** newnodes=findFinalNode(currnode->childNodes);
-//            *newnodes=newnode2;
-//            *(newnodes+1)=newnode1;
-//            addChildNode(newnode1->No, currnode);
-//            addChildNode(newnode2->No, currnode);
-//            return;
-//        }
-//    }
-//    PatriciaTrieNode** newnodes=findFinalNode(startnode->childNodes);
-//    *newnodes=initialPatriciaNode(3);
-//    PatriciaTrieNode* newnode1=*newnodes;
-//    newnode1->key=strcutright(string, start_pos);
-//    addChildNode(newnode1->No, startnode);
-//    return;
-//}
+#include <time.h>
+#define LEN_PATRICIANODE sizeof(struct PatriciaTrieNode)
+#define LEN_CHAR sizeof(char)
+#define LEN_LINE 100
+#define INI_LENGTH 10
+
+
+char *ReadData(FILE *fp, char *buf)
+{
+    return fgets(buf, LEN_LINE, fp);
+}
+struct PatriciaTrieNode
+{
+    char* nodeKey;
+    int nodeFlag;
+    int nodeChildsNumber;
+    int nodeSize;
+    struct PatriciaTrieNode** nodeChildNodeList;
+    struct PatriciaTrieNode* nodeParentNode;
+    char nodeBitmapSet[255/(8*LEN_CHAR)+1];
+    int nodePortNumber;
+};
+struct PatriciaTrieNode* initPatriciaNode(int flag,int port)
+{
+    int bitmapSize;
+    struct PatriciaTrieNode* newNode=(struct PatriciaTrieNode *)malloc(sizeof(struct PatriciaTrieNode));
+    newNode->nodeKey=(char*)"";
+    newNode->nodeFlag=flag;
+    newNode->nodeChildsNumber=0;
+    newNode->nodeSize=0;
+    newNode->nodeChildNodeList=(struct PatriciaTrieNode**)malloc(INI_LENGTH*sizeof(struct PatriciaTrieNode*));
+    if(newNode->nodeChildNodeList !=NULL)
+    {
+        newNode->nodeSize = INI_LENGTH;
+        for(int i = 0; i <newNode->nodeSize;i++ )
+        {
+            newNode->nodeChildNodeList[i] = NULL;
+        }
+    }
+    newNode->nodeParentNode=NULL;
+    if(newNode->nodeBitmapSet== NULL)
+        return 0;
+    bitmapSize = 255/(8*LEN_CHAR)+1;
+    memset(newNode->nodeBitmapSet, 0x0, bitmapSize);
+    newNode->nodePortNumber=port;
+    return newNode;
+}
+
+
+void expandNodeSize(struct PatriciaTrieNode *node)
+{
+    int newallocsize = node->nodeChildsNumber+INI_LENGTH;
+    struct PatriciaTrieNode **newList=(struct PatriciaTrieNode **)realloc(node->nodeChildNodeList,sizeof(struct PatriciaTrieNode *)*newallocsize);
+    if(newList != NULL)
+    {
+        node->nodeChildNodeList=newList;
+        node->nodeSize = newallocsize;
+    }
+    return ;
+}
+void insertNode(struct PatriciaTrieNode *node, int index, struct PatriciaTrieNode *tarNode)
+{
+    if(node->nodeChildsNumber + 1 > node->nodeSize)
+    {
+        expandNodeSize(node);
+    }
+    int i = 0;
+    for(i = node->nodeChildsNumber; i >  index; )
+    {
+        node->nodeChildNodeList[i] = node->nodeChildNodeList[i - 1];
+        i--;
+    }
+    node->nodeChildNodeList[index] = tarNode;
+    node->nodeChildsNumber++;
+}
+
+void shrinkNodeSize(struct PatriciaTrieNode *node)
+{
+    if((node->nodeChildsNumber >> 1) <node->nodeSize && (node->nodeSize> INI_LENGTH))
+    {
+        int newallocsize = node->nodeChildsNumber+(node->nodeChildsNumber>>1) ;
+        struct PatriciaTrieNode **newList = (struct PatriciaTrieNode **)realloc(node->nodeChildNodeList,sizeof(struct PatriciaTrieNode *)*newallocsize);
+        if(newList != NULL)
+        {
+            node->nodeChildNodeList=newList;
+            node->nodeSize = newallocsize;
+        }
+    }
+    return;
+}
+void destroyNode(struct PatriciaTrieNode *node)
+{
+    if(node == NULL)
+    {
+        return;
+    }
+    node->nodeParentNode=NULL;
+    free(node->nodeKey);
+    node->nodeKey = NULL;
+    free(node->nodeChildNodeList);
+    node->nodeChildNodeList = NULL;
+    free(node);
+    node = NULL;
+    return;
+}
+
+void deleteChildNode(struct PatriciaTrieNode *node, int index)
+{
+    int i = 0;
+    destroyNode(node->nodeChildNodeList[index]);
+    node->nodeChildNodeList[index]=NULL;
+    for(i = index; (i+1) < node->nodeChildsNumber; i++)
+    {
+        node->nodeChildNodeList[i] = node->nodeChildNodeList[i + 1];
+        node->nodeChildNodeList[i+1]=NULL;
+    }
+    
+    node->nodeChildsNumber--;
+    
+    shrinkNodeSize(node);
+    return;
+}
+
+
+
+
+struct PatriciaTrieNode* freePatriciaTrieNode(struct PatriciaTrieNode* node)
+{
+    free(node->nodeChildNodeList);
+    node->nodeChildNodeList=NULL;
+    node->nodeParentNode=NULL;
+    //free(node->nodeParentNode);
+    //node->nodeParentNode=NULL;
+    free(node);
+    node=NULL;
+    return node;
+}
+
+
+char* cutStrMid(char* src,int startpos,int endpos)
+{
+    int Len=endpos-startpos;
+    int OldLen = (int)strlen(src);
+    if (endpos>OldLen) {
+        Len=OldLen-startpos;
+    }
+    if(Len>=0){
+        char * Result = (char*)malloc(Len + 1);
+        memcpy(Result, src+startpos, Len);
+        Result[Len] = '\0';
+        return Result;
+    }
+    else
+        return NULL;
+    //    char *p;
+    //    char *q;
+    //    int n=endpos-startpos;
+    //    int m=startpos;
+    //    int len = (int)strlen(src);
+    //    char* dst=(char*)malloc(n+1);
+    //    if (dst==NULL)
+    //    {
+    //        printf("malloc error!");
+    //        return NULL;
+    //    }
+    //    p = src;
+    //    q = dst;
+    //    if(n>len)
+    //        n = len-m;
+    //    if(m<0)
+    //        m=0;
+    //    if(m>len)
+    //        return NULL;
+    //    p += m;
+    //    while(n--)
+    //        *(q++) = *(p++);
+    //    *(q++)='\0';
+    //    return dst;
+}
+
+//cut a string after one pos
+char* cutStrRight(char* src,int startpos)
+{
+    //    if (!cutStrMid(src, startpos, (int)strlen(src))) {
+    //        printf("WWWWW!");
+    //        return NULL;
+    //    }
+    return cutStrMid(src, startpos, (int)strlen(src));
+}
+char* longestprefix(char* str1,char* str2)
+{
+    char* p=str1;
+    char* q=str2;
+    char* buffer;
+    int i=0;
+    while (*p++==*q++) {
+        i++;
+    }
+    buffer=cutStrMid(str1, 0, i);
+    return buffer;
+}
+
+
+//the operations on the bitmap
+
+int bitmap_setTo1(int index, char* bitmap)  //change the value on the position index from 0 to 1
+{
+    
+    int subscript=index/(LEN_CHAR*8) ;
+    int remainder = index%(LEN_CHAR*8);
+    unsigned char x = (0x1<<remainder);
+    if( subscript >255/(8*LEN_CHAR))
+        return 0;
+    bitmap[subscript] |= x;
+    return 1;
+}
+
+int bitmap_setTo0(int index, char* bitmap)  //change the value on the position index from 1 to 0
+{
+    int subscript=index/(LEN_CHAR*8) ;
+    int remainder = index%(LEN_CHAR*8);
+    unsigned char x = (0x1<<remainder);
+    if( subscript >255/(8*LEN_CHAR))
+        return 0;
+    bitmap[subscript] ^= x;
+    return 1;
+}
+
+
+int bitmap_get(int index,char* bitmap)  //return 1 means the value in the position index is 1,return 0......is 0,return -1 means the index is out of the range
+{
+    //    int a=index;
+    int subscript = index/(LEN_CHAR*8) ;
+    int remainder = (index)%(LEN_CHAR*8);
+    unsigned char x = (0x1<<remainder);
+    unsigned char res;
+    if( subscript > 255/(8*LEN_CHAR))
+        return -1;
+    res=bitmap[subscript] & x;
+    return res > 0 ? 1 : 0;
+}
+
+void printBitmap(char*bitmap)
+{
+    int i;
+    for(i=0;i<255;i++)
+    {
+        int a=bitmap_get(i, bitmap);
+        printf("%d ",a);
+    }
+    printf("\n");
+}
+
+int bitmap_frontcount(int index,char* bitmap)
+{
+    int i,sum=0;
+    for(i=0;i<index;i++)
+    {
+        sum+=bitmap_get(i, bitmap);
+        //        if(bitmap_get(i, bitmap)==1)
+        //            printf("%d\n", i);
+    }
+    //    printf("-------------------------------");
+    return sum;
+}
+
+void addNode(struct PatriciaTrieNode* node,struct PatriciaTrieNode* tarNode)
+{
+    int index=0;
+    if(bitmap_get(tarNode->nodeKey[0], node->nodeBitmapSet))//如果已经有了，替换
+    {
+        index=bitmap_frontcount(tarNode->nodeKey[0], node->nodeBitmapSet);
+        node->nodeChildNodeList[index]=tarNode;
+        tarNode->nodeParentNode=node;
+    }
+    else//否则添加
+    {
+        bitmap_setTo1(tarNode->nodeKey[0], node->nodeBitmapSet);
+        index=bitmap_frontcount(tarNode->nodeKey[0], node->nodeBitmapSet);
+        tarNode->nodeParentNode=node;
+        //        node->nodeChildsNumber+=1;
+        //        if((node->nodeChildsNumber)%INI_LENGTH==0)
+        //            node->nodeChildNodeList=reallocate(node->nodeChildsNumber,node->nodeChildNodeList);
+        //        for(int i=node->nodeChildsNumber-1;i>index;i--)
+        //        {
+        //            node->nodeChildNodeList[i]=node->nodeChildNodeList[i-1];
+        //        }
+        //        node->nodeChildNodeList[index]=tarNode;
+        insertNode(node, index, tarNode);
+    }
+}
+
+struct PatriciaTrieNode* searchStrInNode(char* targetStr,struct PatriciaTrieNode* node)
+{
+    while(/*(strcmp(node->nodeKey,"")!=0)||*/node->nodeChildNodeList[0])
+    {
+        if(strcmp(node->nodeKey,targetStr)!=0)
+        {
+            char* testCut=longestprefix(targetStr, node->nodeKey);
+            if(strcmp(testCut,node->nodeKey)==0)
+            {
+                int index;
+                char* remaining=cutStrRight(targetStr, (int)strlen(node->nodeKey));
+                //
+                targetStr+=(int)strlen(node->nodeKey);
+                //
+                index=remaining[0];
+                if(bitmap_get(index, node->nodeBitmapSet)==1)
+                {
+                    int childnumber=bitmap_frontcount(index,node->nodeBitmapSet);
+                    node=node->nodeChildNodeList[childnumber];
+                    free(remaining);
+                    remaining=NULL;
+                }
+                else
+                {
+                    free(remaining);
+                    remaining=NULL;
+                    return node;
+                }
+            }
+            else
+                return node;
+        }
+        else
+            return node;
+    }
+    if(!node->nodeChildNodeList[0])
+    {
+        return node;
+    }
+    else
+        return NULL;
+    
+}
+
+int insertStrInNode(char* string,struct PatriciaTrieNode* node,int port)
+{
+    int sum=0;
+    struct PatriciaTrieNode *testNode,*currnode;
+    testNode=searchStrInNode(string, node);
+    currnode=testNode;
+    if(currnode->nodeParentNode==NULL)      //如果找到的最后需要验证的节点是root，有两种情况，第一种是root没有孩子，第二种是有孩子，如果有孩子我们需要重新排列孩子顺序，所以在此两种情况分开来说
+    {
+        
+        struct PatriciaTrieNode* newnode=initPatriciaNode(3, port);
+        newnode->nodeKey=string;
+        addNode(currnode, newnode);
+        
+    }
+    else  //如果找到的最终需要验证的节点不是root，remaining是待匹配的字符串，testnodekey是找到的最终节点的字符串
+    {
+        char *remaining,*testNodeKey;
+        while(currnode->nodeParentNode)
+        {
+            sum+=strlen(currnode->nodeParentNode->nodeKey);
+            currnode=currnode->nodeParentNode;
+        }
+        remaining=cutStrRight(string,sum);
+        
+        testNodeKey=testNode->nodeKey;
+        if(strlen(remaining)>=strlen(testNodeKey))  //如果长度上remaining>=testnodekey
+        {
+            char *buffer;
+            buffer=longestprefix(remaining, testNodeKey);
+            if(strcmp(buffer, testNodeKey)==0)  //如果testnodekey和remaining前部分完全相同，则需要在现有的testnode下增加节点并将remaining剩余部分存入
+            {
+                char* newNodeKey=cutStrRight(remaining,(int)strlen(testNodeKey));
+                if(/*strcmp(newNodeKey,"")*/strlen(newNodeKey)!=0)
+                {
+                    struct PatriciaTrieNode* newNode=initPatriciaNode(3,port);
+                    newNode->nodeKey=newNodeKey;
+                    addNode(testNode, newNode);
+                }
+            }
+            else if(strlen(buffer)==0)  //如果remaining和testnodekey完全不同，则需要将testnode移向他的父亲节点，然后再给testnode增加节点来储存remaining
+            {
+                struct PatriciaTrieNode* newNode;
+                testNode=testNode->nodeParentNode;
+                newNode=initPatriciaNode(3,port);
+                newNode->nodeKey=remaining;
+                addNode(testNode, newNode);
+            }
+            else  //剩下的就是remaining和testnodekey只有一部分匹配，那么这部分需要将他们相同的提出来建立一个新的节点，这个新的节点加为testnode的父亲节点，将原来testnodekey剩下的后半部分存到testnode中，将remaining剩下的福分存在新建立的testnode的兄弟节点中
+            {
+                char* newFatherKey=buffer;
+                char* oldtestNodeKey=cutStrRight(testNodeKey,(int)strlen(buffer));
+                char* newBroKey=cutStrRight(remaining, (int)strlen(buffer));
+                struct PatriciaTrieNode* newFather=initPatriciaNode(2,0);
+                struct PatriciaTrieNode* newBrother=initPatriciaNode(3,port);
+                testNode->nodeKey=oldtestNodeKey;
+                newFather->nodeKey=newFatherKey;
+                newBrother->nodeKey=newBroKey;
+                addNode(testNode->nodeParentNode, newFather);
+                addNode(newFather, testNode);
+                addNode(newFather, newBrother);
+            }
+        }
+        else  //如果长度remaining<testnodekey，操作和大于等于基本相同，不过remaining和testnodekey调换位置
+        {
+            char *buffer;
+            buffer=longestprefix(remaining, testNodeKey);
+            if(strcmp(buffer,remaining)==0)
+            {
+                char *oldNodeKey=cutStrRight(testNodeKey, (int)strlen(remaining));
+                struct PatriciaTrieNode* newNode=initPatriciaNode(3,port);
+                newNode->nodeKey=buffer;
+                testNode->nodeKey=oldNodeKey;
+                addNode(testNode->nodeParentNode, newNode);
+                addNode(newNode, testNode);
+            }
+            else if(strlen(buffer)==0)
+            {
+                struct PatriciaTrieNode* newNode;
+                testNode=testNode->nodeParentNode;
+                newNode=initPatriciaNode(3,port);
+                newNode->nodeKey=remaining;
+                addNode(testNode, newNode);
+            }
+            else
+            {
+                char* newFatherKey=buffer;
+                char* oldtestNodeKey=cutStrRight(testNodeKey,(int)strlen(buffer));
+                char* newBroKey=cutStrRight(remaining, (int)strlen(buffer));
+                struct PatriciaTrieNode* newFather=initPatriciaNode(2,0);
+                struct PatriciaTrieNode* newBrother=initPatriciaNode(3,port);
+                testNode->nodeKey=oldtestNodeKey;
+                newFather->nodeKey=newFatherKey;
+                newBrother->nodeKey=newBroKey;
+                addNode(testNode->nodeParentNode, newFather);
+                addNode(newFather, testNode);
+                addNode(newFather, newBrother);
+            }
+        }
+    }
+    return 1;
+    
+}
+
+void getPort(struct PatriciaTrieNode* node)
+{
+    printf("%d\n",node->nodePortNumber);
+}
+
+
+int delete(char* string,struct PatriciaTrieNode* node)
+{
+    int flag=1;
+    int sum,index;
+    char *remaining,*testNodeKey;
+    struct PatriciaTrieNode *testNode,*currnode;
+    sum=0;
+    testNode=searchStrInNode(string, node);
+    currnode=testNode;
+    while(currnode->nodeParentNode)
+    {
+        sum+=strlen(currnode->nodeParentNode->nodeKey);
+        currnode=currnode->nodeParentNode;
+    }
+    remaining=cutStrRight(string,sum);
+    testNodeKey=testNode->nodeKey;
+    if(strlen(remaining)<strlen(testNodeKey))
+    {
+        printf("No compatible things!\n");
+        free(remaining);
+        remaining=NULL;
+        return 0;
+    }
+    else
+    {
+        char* test=longestprefix(remaining, testNodeKey);
+        free(remaining);
+        remaining=NULL;
+        if(strcmp(test,testNodeKey)!=0)
+        {
+            printf("No compatible things!\n");
+            free(test);
+            test=NULL;
+            return 0;
+        }
+        free(test);
+        test=NULL;
+    }
+    if(!testNode->nodeParentNode)
+    {
+        printf("No compatible things!\n");
+        return 0;
+    }
+    while(testNode->nodeParentNode)
+    {
+        if(testNode->nodeFlag==3)
+        {
+            flag=0;
+            if(testNode->nodeChildsNumber==0)
+            {
+                getPort(testNode);
+                index=bitmap_frontcount(testNode->nodeKey[0], testNode->nodeParentNode->nodeBitmapSet);
+                bitmap_setTo0(testNode->nodeKey[0], testNode->nodeParentNode->nodeBitmapSet);
+                testNode=testNode->nodeParentNode;
+                deleteChildNode(testNode, index);
+                //destroyNode(killnode);
+            }
+            else
+            {
+                testNode->nodeFlag=2;
+                getPort(testNode);
+                testNode=testNode->nodeParentNode;
+            }
+        }
+        else if(testNode->nodeFlag==2&&testNode->nodeChildsNumber==0)
+        {
+            index=bitmap_frontcount(testNode->nodeKey[0], testNode->nodeParentNode->nodeBitmapSet);
+            bitmap_setTo0(testNode->nodeKey[0], testNode->nodeParentNode->nodeBitmapSet);
+            testNode=testNode->nodeParentNode;
+            deleteChildNode(testNode, index);
+        }
+        else
+        {
+            if(flag==1)
+            {
+                printf("No compatible things!\n");
+                flag=0;
+            }
+            testNode=testNode->nodeParentNode;
+        }
+        
+    }
+    return 1;
+    
+    
+}
+
+
+
+
 
 int main()
 {
-//    PatriciaTrieNode *root=initialPatriciaNode(1);
-//    FILE *fp;
-//    char *buf, *p;
-//    if ((fp=fopen("/Users/zhaowenichi/Downloads/toStudent/text1.txt", "r"))==NULL) {
-//        printf("open file error!!\n");
-//        return 0;
-//    }
-//    
-//    buf=(char*)malloc(LINE*sizeof(char));
-//    
-//    while(1) {
-//        p=ReadData(fp, buf);
-//        if(!p)
-//        break;
-//        insertstring(root, 0,buf);
-//    }
-//    vector<PatriciaTrieNode*> nodelist;
-//    nodelist.push_back(root);
-//    nodelist.push_back(initialPatriciaNode(3));
-//    int total_element=LENint;
-//    int *dynamic;
-//    int *ptr;
-//    int current_element=0;
-//    int a=1000;
-//    do {
-//        
-//        ptr=(int*)realloc(dynamic, (current_element+1)*LENint);
-//        if (ptr!=NULL) {
-//            dynamic=ptr;
-//        }
-//        else
-//            exit(EXIT_FAILURE);
-//        dynamic[current_element++]=a;
-//        
-//    } while (a-->=0);
-//
-//    a=100;
-//    current_element=0;
-//    while (a--) {
-//        printf("%d ",dynamic[current_element++]);
-//    }
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/");
-//    insertstring(root, 0, (char*)"www.chemicalsindiacompany.com/");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/Faure_Elie/histoire_art_antique/art_antique.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/focillon_henri/Vie_des_formes/Vie_des_formes.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/Diderot_denis/entretien_philo_marechale/entretien_marechale.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/Diderot_denis/d_Alembert/d_alembert_1_entretien/entretien.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/Diderot_denis/d_Alembert/d_alembert_1_entretien/entretien.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/Diderot_denis/lettre_commerce_livre/lettre_com_livre.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/Diderot_denis/d_Alembert/d_alembert_2_reve/reve_d_alembert.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/Diderot_denis/d_Alembert/d_alembert_3_entretien_fin/entretien_fin.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/Boukharine_N/boukharine.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/Diderot_denis/voyage_bougainville/voyage_bougainville.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/gautier_theophile/gautier_theophile.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/lafargue_paul/determinisme_de_marx/determinisme_de_marx.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/lafargue_paul/La_religion_du_capital/La_religion_du_capital.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/keynes_john_maynard/keynes_jm.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/Alain/Alain.html");
-//    insertstring(root, 0, (char*)"classiques.uqac.ca/classiques/bergson_henri/bergson_henri.html");
-
-    //printPatricianode(root);
-////    cout<<LEN;
-//    char* bitmap;
-//    bitmap=bitmap_init(bitmap);
-//    bitmap_setTo1('a', bitmap);
-//    
-    cout<<strcmp("chaosach", "chaosac");
+    clock_t a,b;
+    double sum=0;
+    
+    struct PatriciaTrieNode* root=initPatriciaNode(0,0);
+    FILE *fp1,*fp2;
+    int i=0;
+    if((fp1=fopen("/Users/zhaowenichi/Downloads/toStudent/url-list-alexa.txt","r"))==NULL)
+    {
+        printf("File open error\n");
+        return 0;
+    }
+    if((fp2=fopen("/Users/zhaowenichi/Downloads/toStudent/url-list-alexa.txt","r"))==NULL)
+    {
+        printf("File open error\n");
+        return 0;
+    }
+    while (1) {
+        char *p,*p1,*buf,*buf1;
+        buf=(char*)malloc(LEN_LINE*sizeof(char));
+        buf1=(char*)malloc(LEN_LINE*sizeof(char));
+        if (i<1000000) {
+            p=ReadData(fp1, buf);
+            if(!p)
+                break;
+            buf=cutStrMid(buf, 0, (int)strlen(buf)-2);
+            a=clock();
+            insertStrInNode(buf, root, i++);
+            b=clock();
+        }
+        if (i>500000) {
+            p1=ReadData(fp2, buf1);
+            if(!p1)
+                break;
+            buf1=cutStrMid(buf1, 0, (int)strlen(buf1)-2);
+            a=clock();
+            delete(buf1, root);
+            b=clock();
+        }
+        free(buf1);
+        buf1=NULL;
+        sum+=(double)(b-a)/CLOCKS_PER_SEC;
+    }
+    fclose(fp1);
+    fclose(fp2);
+    printf("%f",sum);
     return 0;
 }
